@@ -1,3 +1,8 @@
+package taskmanager.app;
+
+import taskmanager.utiltask.*;
+import taskmanager.manager.TaskManager;
+
 public class Main {
     public static void main(String[] args) {
         TaskManager taskManager = new TaskManager();
@@ -55,8 +60,8 @@ public class Main {
         }
 
         // Изменение статусов
-        task1.setStatus(Status.IN_PROGRESS);
-        subtask1.setStatus(Status.DONE);
+        task1.setStatus(Status.DONE);
+        subtask1.setStatus(Status.NEW);
         subtask2.setStatus(Status.DONE);
         subtask3.setStatus(Status.DONE);
         subtask4.setStatus(Status.DONE);
@@ -67,7 +72,7 @@ public class Main {
         // Печать статусов после изменений
         System.out.println("\nТекущие статусы после изменений:");
 
-        System.out.println("Задача ID: " + task1.getId() + taskManager.getTaskById(1).getStatus());
+        System.out.println("Задача ID: " + task1.getId() +" "+ taskManager.getTaskById(1).getStatus());
 
         for (Subtask sub : epic1.getSubtasks().values()) {
             System.out.println("Подзадача ID: " + sub.getId() + " " + sub.getTitle() + ", Статус: " + sub.getStatus());
