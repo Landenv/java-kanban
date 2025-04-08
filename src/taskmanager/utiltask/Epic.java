@@ -9,13 +9,13 @@ public class Epic extends Task {
         super(title, description);
         this.subtasks = new HashMap<>();
     }
+    // izm
+    public void addSubtask(Subtask subtask) {
+        subtasks.put(subtask.getId(), subtask);
+    }
 
     public HashMap<Integer, Subtask> getSubtasks() {
         return subtasks;
-    }
-
-    public void addSubtask(Subtask subtask) {
-        subtasks.put(subtask.getId(), subtask);
     }
 
     @Override
