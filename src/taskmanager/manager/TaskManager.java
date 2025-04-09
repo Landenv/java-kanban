@@ -5,7 +5,7 @@ import taskmanager.utiltask.Subtask;
 import taskmanager.utiltask.Epic;
 import taskmanager.utiltask.Status;
 
-
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class TaskManager {
@@ -19,14 +19,11 @@ public class TaskManager {
         tasks = new HashMap<>();
         subtasks = new HashMap<>();
         epics = new HashMap<>();
-        nextId = 1; // Общий счетчик для всех типов задач
+        nextId = 1;
     }
 
     // Получение следующего идентификатора
     private int getNextId() {
-        while (tasks.containsKey(nextId) || subtasks.containsKey(nextId) || epics.containsKey(nextId)) {
-            nextId++;
-        }
         return nextId++;
     }
 
@@ -35,10 +32,12 @@ public class TaskManager {
         return tasks.get(id);
     }
 
+    // Получение подзадачи по идентификатору
     public Subtask getSubtaskById(int id) {
         return subtasks.get(id);
     }
 
+    // Получение эпика по идентификатору
     public Epic getEpicById(int id) {
         return epics.get(id);
     }
@@ -53,8 +52,11 @@ public class TaskManager {
     public void createSubtask(Subtask subtask) {
         subtask.setId(getNextId());
         subtasks.put(subtask.getId(), subtask);
-        subtask.getEpic().addSubtask(subtask); // Добавляем подзадачу к эпику
-        updateEpicStatus(subtask.getEpic().getId());
+        Epic epic = epics.get(subtask.getEpicID());
+        if (epic != null) {
+            epic.addSubtask(subtask.getId());
+            updateEpicStatus(epic.getId());
+        }
     }
 
     // Создание эпика
@@ -74,7 +76,11 @@ public class TaskManager {
     public void updateSubtask(Subtask subtask) {
         if (subtasks.containsKey(subtask.getId())) {
             subtasks.put(subtask.getId(), subtask);
-            updateEpicStatus(subtask.getEpic().getId()); // Обновляем статус эпика после изменения подзадачи
+            Epic epic = epics.get(subtask.getEpicID());
+            if (epic != null) {
+                //epic.addSubtask(subtask.getId());
+                updateEpicStatus(epic.getId());
+            }
         }
     }
 
@@ -82,24 +88,27 @@ public class TaskManager {
     public void updateEpic(Epic epic) {
         if (epics.containsKey(epic.getId())) {
             epics.put(epic.getId(), epic);
-            updateEpicStatus(epic.getId()); // Обновляем статус эпика после изменения
         }
     }
 
-    public void updateEpicStatus(int epicId) {
+    // Обновление статуса эпика
+    private void updateEpicStatus(int epicId) {
         Epic epic = epics.get(epicId);
         if (epic != null) {
-            boolean hasSubtasks = !epic.getSubtasks().isEmpty();
+            boolean hasSubtasks = !epic.getSubtaskIds().isEmpty();
             boolean allNew = true;
             boolean allDone = true;
 
-            for (Subtask sub : epic.getSubtasks().values()) {
-                Status status = sub.getStatus();
-                if (status != Status.NEW) {
-                    allNew = false; // Если есть хоть одна подзадача не NEW
-                }
-                if (status != Status.DONE) {
-                    allDone = false; // Если есть хоть одна подзадача не DONE
+            for (Integer subtaskId : epic.getSubtaskIds()) {
+                Subtask sub = subtasks.get(subtaskId);
+                if (sub != null) {
+                    Status status = sub.getStatus();
+                    if (status != Status.NEW) {
+                        allNew = false;
+                    }
+                    if (status != Status.DONE) {
+                        allDone = false;
+                    }
                 }
             }
 
@@ -114,31 +123,23 @@ public class TaskManager {
         }
     }
 
-    // Гетеры
-    public HashMap<Integer, Epic> getEpics() {
-        return epics;
-    }
-
-    public HashMap<Integer, Task> getTasks() {
-        return tasks;
-    }
-
-    public HashMap<Integer, Subtask> getSubtasks() {
-        return subtasks;
-    }
-
     // Удаление задачи по идентификатору
     public void deleteTask(int id) {
         tasks.remove(id);
     }
 
+    // Удаление подзадачи по идентификатору
+    public void deleteSubtasks(int id) {
+        subtasks.remove(id);
+    }
+
     // Удаление эпика по идентификатору
     public void deleteEpic(int id) {
-        Epic epic = epics.remove(id); // Удаляем эпик и получаем его
-        if (epic != null) { // Проверяем, был ли найден эпик
+        Epic epic = epics.remove(id);
+        if (epic != null) {
             // Удаляем все подзадачи, связанные с этим эпиком
-            for (Integer subtaskId : epic.getSubtasks().keySet()) {
-                subtasks.remove(subtaskId); // Удаляем подзадачу по идентификатору
+            for (Integer subtaskId : epic.getSubtaskIds()) {
+                subtasks.remove(subtaskId);
             }
         }
     }
@@ -148,37 +149,46 @@ public class TaskManager {
         tasks.clear();
     }
 
+    // Удаление всех подзадач
+    public void deleteAllSubtasks() {
+        subtasks.clear();
+        for (Epic epic : epics.values()) {
+            epic.getSubtaskIds().clear();
+        }
+    }
+
     // Удаление всех эпиков
     public void deleteAllEpics() {
         epics.clear();
-        subtasks.clear();  // Удаляем все подзадачи при удалении всех эпиков.
+        deleteAllSubtasks();  // Удаляем все подзадачи при удалении всех эпиков.
     }
 
     // Получение всех задач
-    public HashMap<Integer, Task> getAllTasks() {
-        return tasks;
+    public ArrayList<Task> getAllTasks() {
+        return new ArrayList<>(tasks.values());
     }
 
     // Получение всех подзадач
-    public HashMap<Integer, Subtask> getAllSubtasks() {
-        return subtasks;
+    public ArrayList<Subtask> getAllSubtasks() {
+        return new ArrayList<>(subtasks.values());
     }
 
     // Получение всех эпиков
-    public HashMap<Integer, Epic> getAllEpics() {
-        return epics;
+    public ArrayList<Epic> getAllEpics() {
+        return new ArrayList<>(epics.values());
     }
 
     // Получение всех подзадач определённого эпика
-    public HashMap<Integer, Subtask> getSubtasksByEpic(int epicId) {
+    public ArrayList<Subtask> getSubtasksByEpic(int epicId) {
         Epic epic = getEpicById(epicId);
-        HashMap<Integer, Subtask> result = new HashMap<>();
+        ArrayList<Subtask> result = new ArrayList<>();
 
         if (epic != null) {
-            result.putAll(epic.getSubtasks());
-        }
+            for (Integer subtaskId : epic.getSubtaskIds()) {
+                result.add(subtasks.get(subtaskId));
+            }
 
+        }
         return result;
     }
-
 }

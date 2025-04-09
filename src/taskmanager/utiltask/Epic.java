@@ -1,24 +1,24 @@
 package taskmanager.utiltask;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 
 public class Epic extends Task {
-    private final HashMap<Integer, Subtask> subtasks;
+    private final ArrayList<Integer> subtaskIds;
 
     public Epic(String title, String description) {
         super(title, description);
-        this.subtasks = new HashMap<>();
-    }
-    // izm
-    public void addSubtask(Subtask subtask) {
-        subtasks.put(subtask.getId(), subtask);
+        this.subtaskIds = new ArrayList<>();
     }
 
-    public HashMap<Integer, Subtask> getSubtasks() {
-        return subtasks;
+    public void addSubtask(int subtaskId) {
+        subtaskIds.add(subtaskId);
     }
 
-    @Override
+    public ArrayList<Integer> getSubtaskIds() {
+        return subtaskIds;
+    }
+
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Эпик ID: ").append(getId()).append("\n")
@@ -27,8 +27,8 @@ public class Epic extends Task {
                 .append("Текущий статус: ").append(getStatus()).append("\n")
                 .append("Подзадачи эпика: \n");
 
-        for (Subtask subtask : subtasks.values()) {
-            sb.append("  - ").append(subtask.toString()).append("\n");
+        for (Integer subtaskId : subtaskIds) {
+            sb.append("  - Подзадача ID: ").append(subtaskId).append("\n");
         }
 
         return sb.toString();

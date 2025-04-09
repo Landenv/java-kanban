@@ -23,10 +23,10 @@ public class Main {
         taskManager.createEpic(epic2);
 
         // Создание подзадач для первого эпика
-        Subtask subtask1 = new Subtask("Класс Task", "Реализовать методы внутри класса и переменные", epic1);
-        Subtask subtask2 = new Subtask("Класс SubTask", "Реализовать методы внутри класса и переменные", epic1);
-        Subtask subtask3 = new Subtask("Класс Epic", "Реализовать методы внутри класса и переменные", epic1);
-        Subtask subtask4 = new Subtask("Класс TaskManager", "Реализовать методы внутри класса и переменные", epic1);
+        Subtask subtask1 = new Subtask("Класс Task", "Реализовать методы внутри класса и переменные", epic1.getId());
+        Subtask subtask2 = new Subtask("Класс SubTask", "Реализовать методы внутри класса и переменные", epic1.getId());
+        Subtask subtask3 = new Subtask("Класс Epic", "Реализовать методы внутри класса и переменные", epic1.getId());
+        Subtask subtask4 = new Subtask("Класс TaskManager", "Реализовать методы внутри класса и переменные", epic1.getId());
         // Используем метод createSubtask для добавления подзадач
         taskManager.createSubtask(subtask1);
         taskManager.createSubtask(subtask2);
@@ -35,7 +35,7 @@ public class Main {
 
         // Создание подзадачи для второго эпика
         Subtask subtask5 = new Subtask("Тестирование и Ревью", "Произвести тесты проекта по ФЗ№4," +
-                " отправить на Ревью", epic2);
+                " отправить на Ревью", epic2.getId());
 
         // Используем метод createSubtask для добавления подзадачи
         taskManager.createSubtask(subtask5);
@@ -49,32 +49,37 @@ public class Main {
         System.out.println(taskManager.getEpicById(3));
         System.out.println(taskManager.getEpicById(4));
 
+
         System.out.println("\nСписок подзадач для Эпика ID: " + epic1.getId());
-        for (Subtask sub : epic1.getSubtasks().values()) {
-            System.out.println(sub);
+        for (Integer subtaskId : epic1.getSubtaskIds()) {
+            System.out.println(taskManager.getSubtaskById(subtaskId));
         }
 
         System.out.println("\nСписок подзадач для Эпика ID: " + epic2.getId());
-        for (Subtask sub : epic2.getSubtasks().values()) {
-            System.out.println(sub);
+        for (Integer subtaskId : epic2.getSubtaskIds()) {
+            System.out.println(taskManager.getSubtaskById(subtaskId));
         }
 
-        // Изменение статусов
-        task1.setStatus(Status.DONE);
-        subtask1.setStatus(Status.NEW);
-        subtask2.setStatus(Status.DONE);
-        subtask3.setStatus(Status.DONE);
-        subtask4.setStatus(Status.DONE);
 
-        // Обновляем статус эпика после изменения статусов подзадач
-        taskManager.updateEpicStatus(epic1.getId());
+        // Тест изменение статусов
+        task1.setStatus(Status.IN_PROGRESS);
+        taskManager.updateTask(task1);
+        subtask1.setStatus(Status.DONE);
+        taskManager.updateSubtask(subtask1);
+        subtask2.setStatus(Status.IN_PROGRESS);
+        taskManager.updateSubtask(subtask1);
+        subtask3.setStatus(Status.DONE);
+        taskManager.updateSubtask(subtask1);
+        subtask4.setStatus(Status.DONE);
+        taskManager.updateSubtask(subtask1);
+
 
         // Печать статусов после изменений
         System.out.println("\nТекущие статусы после изменений:");
 
-        System.out.println("Задача ID: " + task1.getId() +" "+ taskManager.getTaskById(1).getStatus());
+        System.out.println("Задача ID: " + task1.getId() + " " + taskManager.getTaskById(1).getStatus());
 
-        for (Subtask sub : epic1.getSubtasks().values()) {
+        for (Subtask sub : taskManager.getSubtasksByEpic(epic1.getId())) {
             System.out.println("Подзадача ID: " + sub.getId() + " " + sub.getTitle() + ", Статус: " + sub.getStatus());
         }
 
@@ -87,13 +92,13 @@ public class Main {
 
         // Печать оставшихся задач и эпиков после удаления
         System.out.println("\nСписок задач после удаления:");
-        for (Task task : taskManager.getTasks().values()) {
+        for (Task task : taskManager.getAllTasks()) {
             System.out.println(task);
-        }
 
-        System.out.println("\nСписок эпиков после удаления:");
-        for (Epic epic : taskManager.getEpics().values()) {
-            System.out.println(epic);
+            System.out.println("\nСписок эпиков после удаления:");
+            for (Epic epic : taskManager.getAllEpics()) {
+                System.out.println(epic);
+            }
         }
     }
 }
