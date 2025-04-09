@@ -153,13 +153,14 @@ public class TaskManager {
         subtasks.clear();
         for (Epic epic : epics.values()) {
             epic.getSubtaskIds().clear();
+            updateEpicStatus(epic.getId());
         }
     }
 
     // Удаление всех эпиков
     public void deleteAllEpics() {
         epics.clear();
-        deleteAllSubtasks();
+        subtasks.clear();;
     }
 
     // Получение всех задач
