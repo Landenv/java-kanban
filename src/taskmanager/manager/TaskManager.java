@@ -78,7 +78,6 @@ public class TaskManager {
             subtasks.put(subtask.getId(), subtask);
             Epic epic = epics.get(subtask.getEpicID());
             if (epic != null) {
-                //epic.addSubtask(subtask.getId());
                 updateEpicStatus(epic.getId());
             }
         }
@@ -160,7 +159,7 @@ public class TaskManager {
     // Удаление всех эпиков
     public void deleteAllEpics() {
         epics.clear();
-        deleteAllSubtasks();  // Удаляем все подзадачи при удалении всех эпиков.
+        deleteAllSubtasks();
     }
 
     // Получение всех задач
