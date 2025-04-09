@@ -160,7 +160,7 @@ public class TaskManager {
     // Удаление всех эпиков
     public void deleteAllEpics() {
         epics.clear();
-        subtasks.clear();;
+        subtasks.clear();
     }
 
     // Получение всех задач
