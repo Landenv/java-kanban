@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InMemoryTaskManagerTest {
 
-    private InMemoryTaskManager taskManager;
+    private TaskManager taskManager;
     private Task task1;
     private Task task2;
     private Epic epic1;
@@ -16,7 +16,7 @@ class InMemoryTaskManagerTest {
 
     @BeforeEach
     void setUp() {
-        taskManager = new InMemoryTaskManager();
+        taskManager = Manager.getDefault();
         task1 = new Task("Задача 1", "Описание задачи 1");
         task2 = new Task("Задача 2", "Описание задачи 2");
         epic1 = new Epic("Эпик 1", "Описание эпика 1");

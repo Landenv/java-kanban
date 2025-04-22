@@ -3,8 +3,6 @@ package taskmanager.manager;
 import taskmanager.utiltask.Epic;
 import taskmanager.utiltask.Subtask;
 import taskmanager.utiltask.Task;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public interface TaskManager {
@@ -55,16 +53,16 @@ public interface TaskManager {
     void deleteAllEpics();
 
     // Получение всех задач
-    ArrayList<Task> getAllTasks();
+    List<Task> getAllTasks();
 
     // Получение всех подзадач
-    ArrayList<Subtask> getAllSubtasks();
+    List<Subtask> getAllSubtasks();
 
     // Получение всех эпиков
-    ArrayList<Epic> getAllEpics();
+    List<Epic> getAllEpics();
 
     // Получение всех подзадач определённого эпика
-    ArrayList<Subtask> getSubtasksByEpic(int epicId);
+    List<Subtask> getSubtasksByEpic(int epicId);
 
     // Получение истории просмотров
     List<Task> getHistory();

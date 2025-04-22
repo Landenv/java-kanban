@@ -9,14 +9,14 @@ import java.util.List;
 
 public class InMemoryHistoryManagerTest {
 
-    private InMemoryHistoryManager historyManager;
+    private HistoryManager historyManager;
     private Task task1;
     private Task task2;
     private Task task3;
 
     @BeforeEach
     void setUp() {
-        historyManager = new InMemoryHistoryManager();
+        historyManager = Manager.getDefaultHistory();
         task1 = new Task("Task 1", "Description 1");
         task2 = new Task("Task 2", "Description 2");
         task3 = new Task("Task 3", "Description 3");
@@ -58,7 +58,7 @@ public class InMemoryHistoryManagerTest {
     @Test
     void historyManagerStoresPreviousTaskVersion() {
         // Создаем менеджер задач
-        TaskManager taskManager = new InMemoryTaskManager();
+        TaskManager taskManager = Manager.getDefault();
         // Создаем задачу
         Task task = new Task("Task 1", "Description 1");
         taskManager.createTask(task);
