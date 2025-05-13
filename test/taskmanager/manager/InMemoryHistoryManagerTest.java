@@ -3,6 +3,7 @@ package taskmanager.manager;
 import taskmanager.utiltask.Task;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
@@ -27,6 +28,7 @@ public class InMemoryHistoryManagerTest {
         taskManager.createTask(task2);
         taskManager.createTask(task3);
     }
+
     // Проверка, что задача добавляется в историю
     @Test
     void add_shouldAddTaskToHistory() {
@@ -35,6 +37,7 @@ public class InMemoryHistoryManagerTest {
         assertEquals(1, history.size());
         assertEquals(task1, history.getFirst());
     }
+
     // Проверка, что null задача игнорируется
     @Test
     void add_shouldIgnoreNullTask() {
@@ -42,12 +45,14 @@ public class InMemoryHistoryManagerTest {
         List<Task> history = historyManager.getHistory();
         assertEquals(0, history.size());
     }
+
     // Проверка, что история пуста, когда ничего не добавлено
     @Test
     void getHistory_shouldReturnEmptyListWhenHistoryIsEmpty() {
         List<Task> history = historyManager.getHistory();
         assertTrue(history.isEmpty());
     }
+
     // Проверка, что история возвращает задачи в правильном порядке
     @Test
     void getHistory_shouldReturnTasksInCorrectOrder() {
