@@ -11,11 +11,20 @@ public class Epic extends Task {
         this.subtaskIds = new ArrayList<>();
     }
 
+    // Конструктор для обновления эпика
+    public Epic(int id, String title, String description, List<Integer> subtaskIds) {
+        super(title, description);
+        this.subtaskIds = new ArrayList<>(subtaskIds);
+        this.setId(id);
+    }
+
     public void addSubtask(int subtaskId) {
+
         subtaskIds.add(subtaskId);
     }
 
     public List<Integer> getSubtaskIds() {
+
         return subtaskIds;
     }
 
