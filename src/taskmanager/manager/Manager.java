@@ -2,7 +2,7 @@ package taskmanager.manager;
 
 public class Manager {
 
-    private Manager(){
+    private Manager() {
 
     }
 

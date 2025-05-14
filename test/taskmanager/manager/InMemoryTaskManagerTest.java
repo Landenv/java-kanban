@@ -391,5 +391,39 @@ class InMemoryTaskManagerTest {
         assertEquals(originalTitle, retrievedTask.getTitle());
         assertEquals(originalDescription, retrievedTask.getDescription());
     }
+
+    // Проверка, что при удалении подзадачи её ID не остаётся в эпике.
+    @Test
+    void deleteSubtask_shouldNotLeaveIdInEpic() {
+        taskManager.createEpic(epic1);
+        Subtask subtask = new Subtask("Подзадача 1", "Описание 1", epic1.getId());
+        taskManager.createSubtask(subtask);
+        taskManager.deleteSubtasks(subtask.getId());
+        assertFalse(epic1.getSubtaskIds().contains(subtask.getId()));
+    }
+
+    // Проверка, что при удалении эпика все связанные подзадачи также удаляются.
+    @Test
+    void deleteEpic_shouldRemoveAllRelatedSubtasks() {
+        taskManager.createEpic(epic1);
+        Subtask subtask1 = new Subtask("Подзадача 1", "Описание 1", epic1.getId());
+        taskManager.createSubtask(subtask1);
+        taskManager.deleteEpic(epic1.getId());
+        assertEquals(0, taskManager.getAllSubtasks().size());
+    }
+
+    // Проверка, что при изменении полей задачи данные в менеджере остаются корректными.
+    @Test
+    void updateTask_shouldNotAffectOriginalTask() {
+        taskManager.createTask(task1);
+        String originalTitle = task1.getTitle();
+        Task updatedTask = new Task("Новая задача", "Описание задачи");
+        updatedTask.setId(task1.getId());
+        taskManager.updateTask(updatedTask);
+        // Проверяем, что оригинальная задача осталась неизменной
+        Task originalTask = taskManager.getTaskById(task1.getId());
+        assertEquals(originalTitle, originalTask.getTitle());
+        assertNotEquals(updatedTask.getTitle(), originalTask.getTitle());
+    }
 }
 

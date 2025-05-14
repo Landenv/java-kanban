@@ -14,6 +14,14 @@ public class Task {
         this.status = Status.NEW;
     }
 
+    // Конструктор для обновления задачи с полями id и status
+    public Task(int id, String title, String description, Status status) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.status = status;
+    }
+
     public int getId() {
         return id;
     }

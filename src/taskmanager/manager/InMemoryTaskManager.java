@@ -94,7 +94,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateTask(Task task) {
         if (tasks.containsKey(task.getId())) {
-            tasks.put(task.getId(), task);
+            Task existingTask = tasks.get(task.getId());
+            // Создаем новый обновленный объект
+            Task updatedTask = new Task(existingTask.getId(), existingTask.getTitle(), existingTask.getDescription(),
+                    task.getStatus());
+            tasks.put(updatedTask.getId(), updatedTask);
         }
     }
 
@@ -102,7 +106,14 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateSubtask(Subtask subtask) {
         if (subtasks.containsKey(subtask.getId())) {
-            subtasks.put(subtask.getId(), subtask);
+            Subtask existingSubtask = subtasks.get(subtask.getId());
+            // Создаем новый обновленный объект
+            Subtask updatedSubtask = new Subtask(existingSubtask.getTitle(), existingSubtask.getDescription(),
+                    existingSubtask.getEpicID());
+            updatedSubtask.setId(existingSubtask.getId());
+            updatedSubtask.setStatus(subtask.getStatus());
+            subtasks.put(updatedSubtask.getId(), updatedSubtask);
+
             Epic epic = epics.get(subtask.getEpicID());
             if (epic != null) {
                 updateEpicStatus(epic.getId());
@@ -114,7 +125,12 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void updateEpic(Epic epic) {
         if (epics.containsKey(epic.getId())) {
-            epics.put(epic.getId(), epic);
+            Epic existingEpic = epics.get(epic.getId());
+            // Создаем новый обновленный объект
+            Epic updatedEpic = new Epic(epic.getId(), epic.getTitle(), epic.getDescription(),
+                    existingEpic.getSubtaskIds());
+            epics.put(updatedEpic.getId(), updatedEpic);
+            updateEpicStatus(updatedEpic.getId());
         }
     }
 
@@ -153,23 +169,33 @@ public class InMemoryTaskManager implements TaskManager {
     // Удаление задачи по идентификатору
     @Override
     public void deleteTask(int id) {
+        historyManager.remove(id);
         tasks.remove(id);
     }
 
     // Удаление подзадачи по идентификатору
-    @Override
     public void deleteSubtasks(int id) {
-        subtasks.remove(id);
+        Subtask subtask = subtasks.remove(id);
+        if (subtask != null) {
+            historyManager.remove(id);
+            Epic epic = epics.get(subtask.getEpicID());
+            if (epic != null) {
+                epic.getSubtaskIds().remove((Integer) id);
+                updateEpicStatus(epic.getId());
+            }
+        }
     }
 
     // Удаление эпика по идентификатору
     @Override
     public void deleteEpic(int id) {
         Epic epic = epics.remove(id);
+        historyManager.remove(id);
         if (epic != null) {
             // Удаляем все подзадачи, связанные с этим эпиком
             for (Integer subtaskId : epic.getSubtaskIds()) {
                 subtasks.remove(subtaskId);
+                historyManager.remove(subtaskId);
             }
         }
     }
@@ -177,12 +203,18 @@ public class InMemoryTaskManager implements TaskManager {
     // Удаление всех задач
     @Override
     public void deleteAllTasks() {
+        for (Integer taskId : tasks.keySet()) {
+            historyManager.remove(taskId);
+        }
         tasks.clear();
     }
 
     // Удаление всех подзадач
     @Override
     public void deleteAllSubtasks() {
+        for (Integer subtaskId : subtasks.keySet()) {
+            historyManager.remove(subtaskId);
+        }
         subtasks.clear();
         for (Epic epic : epics.values()) {
             epic.getSubtaskIds().clear();
@@ -193,8 +225,17 @@ public class InMemoryTaskManager implements TaskManager {
     // Удаление всех эпиков
     @Override
     public void deleteAllEpics() {
+        for (Integer epicId : epics.keySet()) {
+            historyManager.remove(epicId);
+            Epic epic = epics.get(epicId);
+            if (epic != null) {
+                for (Integer subtaskId : epic.getSubtaskIds()) {
+                    subtasks.remove(subtaskId);
+                    historyManager.remove(subtaskId);
+                }
+            }
+        }
         epics.clear();
-        subtasks.clear();
     }
 
     // Получение всех задач
