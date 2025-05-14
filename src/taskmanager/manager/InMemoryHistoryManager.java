@@ -5,13 +5,14 @@ import taskmanager.utiltask.Task;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class InMemoryHistoryManager implements HistoryManager {
 
     private Node head;
     private Node tail;
-    private HashMap<Integer, Node> taskMap;
+    private final Map<Integer, Node> taskMap;
 
     public InMemoryHistoryManager() {
         taskMap = new HashMap<>();
@@ -20,8 +21,9 @@ public class InMemoryHistoryManager implements HistoryManager {
     @Override
     public void add(Task task) {
         if (task == null) return;
-        if (taskMap.containsKey(task.getId())) {
-            removeNode(taskMap.get(task.getId()));
+        Node node = taskMap.remove(task.getId());
+        if (node != null) {
+            removeNode(node);
         }
         Node newNode = new Node(task);
         linkLast(newNode);

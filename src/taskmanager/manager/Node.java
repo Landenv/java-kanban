@@ -2,7 +2,7 @@ package taskmanager.manager;
 
 import taskmanager.utiltask.Task;
 
-public class Node {
+class Node {
     Task task;
     Node prev;
     Node next;
