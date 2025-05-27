@@ -12,11 +12,11 @@ import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private final Map<Integer, Task> tasks;
-    private final Map<Integer, Subtask> subtasks;
-    private final Map<Integer, Epic> epics;
-    private int nextId;
-    private final HistoryManager historyManager;
+    protected final Map<Integer, Task> tasks;
+    protected final Map<Integer, Subtask> subtasks;
+    protected final Map<Integer, Epic> epics;
+    protected int nextId;
+    protected final HistoryManager historyManager;
 
     public InMemoryTaskManager() {
         tasks = new HashMap<>();
@@ -29,6 +29,12 @@ public class InMemoryTaskManager implements TaskManager {
     // Получение следующего идентификатора
     private int getNextId() {
         return nextId++;
+    }
+
+    protected void updateNextId(int id) {
+        if (this.nextId <= id) {
+            this.nextId = id + 1;
+        }
     }
 
     // Получение задачи по идентификатору
@@ -135,7 +141,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     // Обновление статуса эпика
-    private void updateEpicStatus(int epicId) {
+    protected void updateEpicStatus(int epicId) {
         Epic epic = epics.get(epicId);
         if (epic != null) {
             boolean hasSubtasks = !epic.getSubtaskIds().isEmpty();
