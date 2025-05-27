@@ -88,20 +88,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String epicValue = getEpicValue(task);
         return String.format("%d,%s,%s,%s,%s,%s",
                 task.getId(),
-                getType(task),
+                getType(task).name(),
                 task.getTitle(),
                 task.getStatus(),
                 task.getDescription(),
                 epicValue);
     }
 
-    private String getType(Task task) {
+    private TaskType getType(Task task) {
         if (task instanceof Epic) {
-            return "EPIC";
+            return TaskType.EPIC;
         } else if (task instanceof Subtask) {
-            return "SUBTASK";
+            return TaskType.SUBTASK;
         }
-        return "TASK";
+        return TaskType.TASK;
     }
 
     private String getEpicValue(Task task) {
@@ -160,32 +160,35 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
 
                 int id = Integer.parseInt(parts[0]);
-                String type = parts[1];
+                String typeString = parts[1];
                 String title = parts[2];
                 Status status = Status.valueOf(parts[3]);
                 String description = parts[4];
 
-                if ("TASK".equals(type) || "EPIC".equals(type)) {
+                // Проверка для epic
+                if (TaskType.TASK.name().equals(typeString) || TaskType.EPIC.name().equals(typeString)) {
                     if (!parts[5].isBlank()) {
-                        throw new ManagerSaveException("Поле epic не должно содержать значение для типа " + type);
+                        throw new ManagerSaveException("Поле epic не должно содержать значение для типа " + typeString);
                     }
                 } else {
                     if (parts[5].isBlank()) {
-                        throw new ManagerSaveException("Поле epic не должно быть пустым для типа " + type);
+                        throw new ManagerSaveException("Поле epic не должно быть пустым для типа " + typeString);
                     }
                 }
 
                 Integer epicId = parts[5].isBlank() ? null : Integer.parseInt(parts[5]);
 
                 Task task;
+                TaskType type = TaskType.valueOf(typeString);
+
                 switch (type) {
-                    case "TASK":
+                    case TASK:
                         task = new Task(id, title, description, status);
                         break;
-                    case "EPIC":
+                    case EPIC:
                         task = new Epic(id, title, description);
                         break;
-                    case "SUBTASK":
+                    case SUBTASK:
                         if (epicId == null) {
                             throw new ManagerSaveException("Для подзадачи требуется валидный epicId");
                         }
@@ -195,15 +198,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         throw new ManagerSaveException("Неизвестный тип задачи: " + type);
                 }
 
-
                 switch (type) {
-                    case "TASK":
+                    case TASK:
                         manager.tasks.put(id, task);
                         break;
-                    case "EPIC":
+                    case EPIC:
                         manager.epics.put(id, (Epic) task);
                         break;
-                    case "SUBTASK":
+                    case SUBTASK:
                         Subtask subtask = (Subtask) task;
                         Epic epic = manager.epics.get(subtask.getEpicID());
                         if (epic == null) {
@@ -214,6 +216,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         break;
                 }
             }
+
             for (Epic epic : manager.epics.values()) {
                 manager.updateEpicStatus(epic.getId());
             }
