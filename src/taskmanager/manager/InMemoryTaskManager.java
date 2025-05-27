@@ -12,9 +12,9 @@ import java.util.Map;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private final Map<Integer, Task> tasks;
-    private final Map<Integer, Subtask> subtasks;
-    private final Map<Integer, Epic> epics;
+    final Map<Integer, Task> tasks;
+    final Map<Integer, Subtask> subtasks;
+    final Map<Integer, Epic> epics;
     private int nextId;
     private final HistoryManager historyManager;
 
@@ -135,7 +135,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     // Обновление статуса эпика
-    private void updateEpicStatus(int epicId) {
+    protected void updateEpicStatus(int epicId) {
         Epic epic = epics.get(epicId);
         if (epic != null) {
             boolean hasSubtasks = !epic.getSubtaskIds().isEmpty();

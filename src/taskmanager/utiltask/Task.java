@@ -3,10 +3,10 @@ package taskmanager.utiltask;
 import java.util.Objects;
 
 public class Task {
-    private int id;
-    private final String title;
-    private final String description;
-    private Status status;
+    protected int id;
+    protected String title;
+    protected String description;
+    protected Status status;
 
     public Task(String title, String description) {
         this.title = title;
@@ -20,6 +20,13 @@ public class Task {
         this.title = title;
         this.description = description;
         this.status = status;
+    }
+
+    // Конструктор для файла
+    public Task(int id, String title, String description) {
+        this.title = title;
+        this.description = description;
+        this.id = id;
     }
 
     public int getId() {
@@ -63,5 +70,9 @@ public class Task {
     public String toString() {
         return "Задача ID: " + id + ", Наименование задачи: " + title +
                 ", Описание задачи: " + description + ", Текущий статус: " + getStatus();
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

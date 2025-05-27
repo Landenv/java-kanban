@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Epic extends Task {
-    private final List<Integer> subtaskIds;
+    private List<Integer> subtaskIds = new ArrayList<>();
 
     public Epic(String title, String description) {
         super(title, description);
@@ -18,6 +18,11 @@ public class Epic extends Task {
         this.setId(id);
     }
 
+    // Конструктор для файла
+    public Epic(int id, String title, String description) {
+        super(id, title, description, Status.NEW);
+    }
+
     public void addSubtask(int subtaskId) {
 
         subtaskIds.add(subtaskId);
@@ -27,7 +32,6 @@ public class Epic extends Task {
 
         return subtaskIds;
     }
-
 
     public String toString() {
         StringBuilder sb = new StringBuilder();

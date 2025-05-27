@@ -8,6 +8,12 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
+    // Конструктор для файла
+    public Subtask(int id, String title, String description, Status status, Integer epicId) {
+        super(id, title, description, status);
+        this.epicId = epicId;
+    }
+
     public int getEpicID() {
         return epicId;
     }
