@@ -33,6 +33,11 @@ public class Epic extends Task {
         return subtaskIds;
     }
 
+    @Override
+    public TaskType getType() {
+        return TaskType.EPIC;
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Эпик ID: ").append(getId()).append("\n")

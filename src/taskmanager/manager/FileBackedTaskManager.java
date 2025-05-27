@@ -88,20 +88,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String epicValue = getEpicValue(task);
         return String.format("%d,%s,%s,%s,%s,%s",
                 task.getId(),
-                getType(task).name(),
+                task.getType(),
                 task.getTitle(),
                 task.getStatus(),
                 task.getDescription(),
                 epicValue);
-    }
-
-    private TaskType getType(Task task) {
-        if (task instanceof Epic) {
-            return TaskType.EPIC;
-        } else if (task instanceof Subtask) {
-            return TaskType.SUBTASK;
-        }
-        return TaskType.TASK;
     }
 
     private String getEpicValue(Task task) {
@@ -215,6 +206,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         epic.addSubtask(subtask.getId());
                         break;
                 }
+                manager.updateNextId(task.getId());
             }
 
             for (Epic epic : manager.epics.values()) {
