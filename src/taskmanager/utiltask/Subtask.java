@@ -1,5 +1,8 @@
 package taskmanager.utiltask;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Subtask extends Task {
     private final int epicId;
 
@@ -8,9 +11,15 @@ public class Subtask extends Task {
         this.epicId = epicId;
     }
 
-    // Конструктор для файла
-    public Subtask(int id, String title, String description, Status status, Integer epicId) {
-        super(id, title, description, status);
+    // Новый унифицированный конструктор
+    public Subtask(String title, String description, int epicId, Duration duration, LocalDateTime startTime) {
+        super(title, description, duration, startTime);
+        this.epicId = epicId;
+    }
+
+    // Конструктор для файла загрузки
+    public Subtask(int id, String title, String description, Status status, Integer epicId, Duration duration, LocalDateTime startTime) {
+        super(id, title, description, status, duration, startTime);
         this.epicId = epicId;
     }
 
