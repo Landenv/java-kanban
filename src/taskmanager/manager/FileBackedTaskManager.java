@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final Path taskListFile;
+    private static final int CSV_FIELD_COUNT = 9;
 
     public FileBackedTaskManager(Path taskListFile) {
         super();
@@ -118,27 +119,27 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             writer.newLine();
 
             // Используем отсортированный prioritizedTasks — они содержат только TASK и SUBTASK c startTime != null
-            for (Task t : prioritizedTasks) {
-                writer.write(formatString(t));
+            for (Task task : prioritizedTasks) {
+                writer.write(formatString(task));
                 writer.newLine();
             }
 
             // Остальные TASK/SUBTASK без startTime
             tasks.values().stream()
-                    .filter(t -> t.getStartTime() == null)
-                    .forEach(t -> {
+                    .filter(task -> task.getStartTime() == null)
+                    .forEach(task -> {
                         try {
-                            writer.write(formatString(t));
+                            writer.write(formatString(task));
                             writer.newLine();
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
                         }
                     });
             subtasks.values().stream()
-                    .filter(s -> s.getStartTime() == null)
-                    .forEach(s -> {
+                    .filter(subtask -> subtask.getStartTime() == null)
+                    .forEach(subtask -> {
                         try {
-                            writer.write(formatString(s));
+                            writer.write(formatString(subtask));
                             writer.newLine();
                         } catch (IOException e) {
                             throw new UncheckedIOException(e);
@@ -173,7 +174,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
                 String[] parts = line.split(",", -1);
 
-                if (parts.length != 9) {
+                if (parts.length != CSV_FIELD_COUNT) {
                     throw new ManagerSaveException("Неверный формат строки: " + line);
                 }
 

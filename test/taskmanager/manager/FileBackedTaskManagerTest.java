@@ -17,9 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     @TempDir
-    Path tempDir;
+    private Path tempDir;
 
-    Path taskListFile;
+    private Path taskListFile;
 
     @BeforeEach
     public void setUp() {
