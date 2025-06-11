@@ -105,4 +105,31 @@ public class InMemoryHistoryManagerTest {
         assertTrue(history.isEmpty());
     }
 
+    // Удаление задачи из истории: начало, середина, конец
+    @Test
+    void removeFromHistory_beginning() {
+        historyManager.add(task1); // id=1
+        historyManager.add(task2); // id=2
+        historyManager.add(task3); // id=3
+        historyManager.remove(task1.getId());
+        assertEquals(List.of(task2, task3), historyManager.getHistory());
+    }
+
+    @Test
+    void removeFromHistory_middle() {
+        historyManager.add(task1);
+        historyManager.add(task2);
+        historyManager.add(task3);
+        historyManager.remove(task2.getId());
+        assertEquals(List.of(task1, task3), historyManager.getHistory());
+    }
+
+    @Test
+    void removeFromHistory_end() {
+        historyManager.add(task1);
+        historyManager.add(task2);
+        historyManager.add(task3);
+        historyManager.remove(task3.getId());
+        assertEquals(List.of(task1, task2), historyManager.getHistory());
+    }
 }
