@@ -7,9 +7,6 @@ import java.time.LocalDateTime;
 
 public class Epic extends Task {
     private List<Integer> subtaskIds = new ArrayList<>();
-    private Duration duration = Duration.ZERO;     // храним актуальное значение
-    private LocalDateTime startTime = null;
-    private LocalDateTime endTime = null;
 
     public Epic(String title, String description) {
         super(title, description);
@@ -44,32 +41,20 @@ public class Epic extends Task {
     }
 
     @Override
-    public Duration getDuration() {
-        return duration;
-    }
-
-    @Override
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    @Override
     public LocalDateTime getEndTime() {
-        return endTime;
+        if (getStartTime() == null || getDuration() == null) return null;
+        return getStartTime().plus(getDuration());
     }
 
     // Метод, вызываемый для пересчёта расчётных полей на основе данных подзадач
     public void recalculate(List<Subtask> subtaskList) {
         if (subtaskList.isEmpty()) {
             this.duration = Duration.ZERO;
-            this.startTime = null;
-            this.endTime = null;
             return;
         }
-        // Вычисляем duration, startTime и endTime по всем подзадачам
+
         Duration total = Duration.ZERO;
         LocalDateTime minStart = null;
-        LocalDateTime maxEnd = null;
 
         for (Subtask sub : subtaskList) {
             if (sub.getStartTime() != null && sub.getDuration() != null) {
@@ -77,15 +62,10 @@ public class Epic extends Task {
                 if (minStart == null || sub.getStartTime().isBefore(minStart)) {
                     minStart = sub.getStartTime();
                 }
-                LocalDateTime subEnd = sub.getEndTime();
-                if (subEnd != null && (maxEnd == null || subEnd.isAfter(maxEnd))) {
-                    maxEnd = subEnd;
-                }
             }
         }
         this.duration = total;
-        this.startTime = minStart;
-        this.endTime = maxEnd;
+        setStartTime(minStart);
     }
 
     public String toString() {

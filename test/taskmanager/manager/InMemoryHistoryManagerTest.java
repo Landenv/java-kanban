@@ -92,7 +92,7 @@ public class InMemoryHistoryManagerTest {
         historyManager.add(task1); // Добавляем повторно
         List<Task> history = historyManager.getHistory();
         assertEquals(1, history.size());
-        assertEquals(task1, history.get(0));
+        assertEquals(task1, history.getFirst());
     }
 
     // Проверка, что удаление задачи из менеджера также удаляет её из истории.

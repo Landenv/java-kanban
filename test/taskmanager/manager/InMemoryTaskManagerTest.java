@@ -51,7 +51,7 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
         manager.createTask(t2);
         manager.createTask(t3);
 
-        List<Task> ordered = ((InMemoryTaskManager) manager).getPrioritizedTasks();
+        List<Task> ordered = manager.getPrioritizedTasks();
         assertEquals(t2, ordered.get(0));
         assertEquals(t3, ordered.get(1));
         assertEquals(t1, ordered.get(2));

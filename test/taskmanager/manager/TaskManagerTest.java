@@ -2,6 +2,7 @@ package taskmanager.manager;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import taskmanager.exception.NotFoundException;
 import taskmanager.utiltask.*;
 
 import java.time.Duration;
@@ -21,9 +22,11 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     protected Task makeTask() {
         return new Task("Task", "Desc", Duration.ofMinutes(15), LocalDateTime.now());
     }
+
     protected Epic makeEpic() {
         return new Epic("Epic", "EpicDesc");
     }
+
     protected Subtask makeSubtask(int epicId) {
         return new Subtask("Sub", "SubDesc", epicId, Duration.ofMinutes(10), LocalDateTime.now());
     }
@@ -50,7 +53,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Task task = makeTask();
         manager.createTask(task);
         manager.deleteTask(task.getId());
-        assertNull(manager.getTaskById(task.getId()));
+        assertThrows(NotFoundException.class, () -> manager.getTaskById(task.getId()));
     }
 
     // CRUD for Epic
@@ -77,9 +80,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Subtask sub = makeSubtask(epic.getId());
         manager.createSubtask(sub);
         manager.deleteEpic(epic.getId());
-        assertNull(manager.getEpicById(epic.getId()));
-        assertNull(manager.getSubtaskById(sub.getId()));
-        assertFalse(manager.getAllSubtasks().contains(sub));
+        assertThrows(NotFoundException.class, () -> manager.getEpicById(epic.getId()));
+        assertThrows(NotFoundException.class, () -> manager.getSubtaskById(sub.getId()));
     }
 
     // CRUD for Subtask
@@ -110,7 +112,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         Subtask sub = makeSubtask(epic.getId());
         manager.createSubtask(sub);
         manager.deleteSubtasks(sub.getId());
-        assertNull(manager.getSubtaskById(sub.getId()));
+        assertThrows(NotFoundException.class, () -> manager.getSubtaskById(sub.getId()));
         assertFalse(manager.getEpicById(epic.getId()).getSubtaskIds().contains(sub.getId()));
     }
 

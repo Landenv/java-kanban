@@ -117,9 +117,6 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Задача ID: " + id + ", Наименование задачи: " + title +
-                ", Описание задачи: " + description + ", Текущий статус: " + getStatus() + ", Длительность: " +
-                (duration != null ? duration.toMinutes() : "нет") + ", Начало: " +
-                (startTime != null ? startTime : "нет");
+        return "Задача ID: " + id + ", Наименование задачи: " + title + ", Описание задачи: " + description + ", Текущий статус: " + getStatus() + ", Длительность: " + (duration != null ? duration.toMinutes() : "нет") + ", Начало: " + (startTime != null ? startTime : "нет");
     }
 }
