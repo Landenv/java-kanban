@@ -8,12 +8,16 @@ import taskmanager.http.HttpTaskServer;
 import taskmanager.utiltask.Epic;
 import taskmanager.utiltask.Subtask;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SubtaskHandlerTest {
     private HttpTaskServer httpTaskServer;
@@ -64,6 +68,20 @@ public class SubtaskHandlerTest {
     }
 
     @Test
+    public void testGetSubtaskById() throws IOException {
+        Subtask subtask = new Subtask("Test Subtask", "Test Subtask Description", 1);
+        taskManager.createSubtask(subtask);
+
+        HttpURLConnection connection = createConnection("/subtasks/" + subtask.getId(), "GET");
+        assertEquals(200, connection.getResponseCode());
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            String response = reader.lines().collect(Collectors.joining());
+            assertTrue(response.contains("Test Subtask"), "Response should contain the subtask title.");
+        }
+    }
+
+    @Test
     public void testDeleteSubtask() throws IOException {
         Subtask subtask = new Subtask("Test Subtask", "Test Subtask Description", 1);
         taskManager.createSubtask(subtask);
@@ -73,4 +91,7 @@ public class SubtaskHandlerTest {
 
         assertEquals(0, taskManager.getAllSubtasks().size());
     }
+
+
+
 }

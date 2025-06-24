@@ -12,6 +12,7 @@ public class Task {
     protected Duration duration;
     protected LocalDateTime startTime;
 
+
     public Task(String title, String description) {
         this.title = title;
         this.description = description;
@@ -67,6 +68,10 @@ public class Task {
 
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Status getStatus() {

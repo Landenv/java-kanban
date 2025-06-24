@@ -7,12 +7,16 @@ import taskmanager.manager.InMemoryTaskManager;
 import taskmanager.http.HttpTaskServer;
 import taskmanager.utiltask.Task;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TaskHandlerTest {
     private HttpTaskServer httpTaskServer;
@@ -61,6 +65,20 @@ public class TaskHandlerTest {
     }
 
     @Test
+    public void testGetTaskById() throws IOException {
+        Task task = new Task("Test Task", "Test Description");
+        taskManager.createTask(task);
+
+        HttpURLConnection connection = createConnection("/tasks/" + task.getId(), "GET");
+        assertEquals(200, connection.getResponseCode());
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            String response = reader.lines().collect(Collectors.joining());
+            assertTrue(response.contains("Test Task"), "Response should contain the task title.");
+        }
+    }
+
+    @Test
     public void testDeleteTask() throws IOException {
         Task task = new Task("Test Task", "Test Description");
         taskManager.createTask(task);
@@ -70,4 +88,6 @@ public class TaskHandlerTest {
 
         assertEquals(0, taskManager.getAllTasks().size());
     }
+
+
 }

@@ -2,6 +2,7 @@ package taskmanager.http.handler;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import taskmanager.exception.NotFoundException;
 import taskmanager.manager.TaskManager;
 import taskmanager.utiltask.Epic;
 import com.google.gson.Gson;
@@ -21,9 +22,10 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        //логи
-        System.out.println("Received request: " + exchange.getRequestURI());
-        try {
+        String path = exchange.getRequestURI().getPath();
+        if (path.matches("/epics/\\d+")) {
+            handleById(exchange);
+        } else {
             switch (exchange.getRequestMethod()) {
                 case "GET":
                     handleGet(exchange);
@@ -37,8 +39,6 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
                 default:
                     sendNotFound(exchange);
             }
-        } catch (Exception e) {
-            sendNotFound(exchange);
         }
     }
 
@@ -46,6 +46,23 @@ public class EpicHandler extends BaseHttpHandler implements HttpHandler {
         List<Epic> epics = taskManager.getAllEpics();
         String jsonResponse = gson.toJson(epics);
         sendText(exchange, jsonResponse);
+    }
+
+    private void handleById(HttpExchange exchange) throws IOException {
+        int id = Integer.parseInt(exchange.getRequestURI().getPath().split("/")[2]);
+        if (exchange.getRequestMethod().equals("GET")) {
+            try {
+                Epic epic = taskManager.getEpicById(id);
+                sendText(exchange, gson.toJson(epic));
+            } catch (NotFoundException e) {
+                sendNotFound(exchange);
+            }
+        } else if (exchange.getRequestMethod().equals("DELETE")) {
+            taskManager.deleteEpic(id);
+            sendText(exchange, "Epic deleted");
+        } else {
+            sendNotFound(exchange);
+        }
     }
 
     private void handlePost(HttpExchange exchange) throws IOException {
