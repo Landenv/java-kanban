@@ -89,5 +89,20 @@ public class TaskHandlerTest {
         assertEquals(0, taskManager.getAllTasks().size());
     }
 
+    @Test
+    public void testUpdateTask() throws IOException {
+        Task task = new Task("Test Task", "Test Description");
+        taskManager.createTask(task);
 
+        String jsonInputString = "{\"title\":\"Updated Task Title\", \"description\":\"Updated Description\"}";
+        HttpURLConnection connection = createConnection("/tasks/" + task.getId(), "PUT");
+        connection.setDoOutput(true);
+        connection.getOutputStream().write(jsonInputString.getBytes());
+
+        assertEquals(200, connection.getResponseCode());
+
+        Task updatedTask = taskManager.getTaskById(task.getId());
+        assertEquals("Updated Task Title", updatedTask.getTitle());
+        assertEquals("Updated Description", updatedTask.getDescription());
+    }
 }

@@ -33,9 +33,6 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
                 case "POST":
                     handlePost(exchange);
                     break;
-                case "PUT":
-                    handlePut(exchange);
-                    break;
                 case "DELETE":
                     handleDelete(exchange);
                     break;
@@ -60,6 +57,19 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
             } catch (NotFoundException e) {
                 sendNotFound(exchange);
             }
+        } else if (exchange.getRequestMethod().equals("PUT")) {
+            Subtask subtask = gson.fromJson(new InputStreamReader(exchange.getRequestBody()), Subtask.class);
+            subtask.setId(id); // Устанавливаем ID подзадачи
+
+            // Логика обновления подзадачи
+            try {
+                taskManager.updateSubtask(subtask);
+                sendText(exchange, gson.toJson(subtask));
+            } catch (NotFoundException e) {
+                sendNotFound(exchange);
+            } catch (IllegalArgumentException e) {
+                sendHasInteractions(exchange);
+            }
         } else if (exchange.getRequestMethod().equals("DELETE")) {
             taskManager.deleteSubtasks(id);
             sendText(exchange, "Subtask deleted");
@@ -76,29 +86,6 @@ public class SubtaskHandler extends BaseHttpHandler implements HttpHandler {
         }
         taskManager.createSubtask(subtask);
         sendText(exchange, gson.toJson(subtask));
-    }
-
-    private void handlePut(HttpExchange exchange) throws IOException {
-        int id = Integer.parseInt(exchange.getRequestURI().getPath().split("/")[2]);
-        System.out.println("Handling PUT for Subtask ID: " + id); // Логируем ID подзадачи
-        Subtask subtask = gson.fromJson(new InputStreamReader(exchange.getRequestBody()), Subtask.class);
-        subtask.setId(id);
-
-        // Логируем данные подзадачи
-        System.out.println("Subtask data before update: " + gson.toJson(subtask));
-
-        if (taskManager.hasIntersection(subtask)) {
-            sendHasInteractions(exchange);
-            return;
-        }
-
-        try {
-            taskManager.updateSubtask(subtask);
-            sendText(exchange, gson.toJson(subtask));
-        } catch (NotFoundException e) {
-            System.out.println("Subtask not found: " + e.getMessage()); // Логируем ошибку
-            sendNotFound(exchange);
-        }
     }
 
     private void handleDelete(HttpExchange exchange) throws IOException {

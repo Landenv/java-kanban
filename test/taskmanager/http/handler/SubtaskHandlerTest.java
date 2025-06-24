@@ -92,6 +92,20 @@ public class SubtaskHandlerTest {
         assertEquals(0, taskManager.getAllSubtasks().size());
     }
 
+    @Test
+    public void testUpdateSubtask() throws IOException {
+        Subtask subtask = new Subtask("Test Subtask", "Test Subtask Description", 1);
+        taskManager.createSubtask(subtask);
 
+        String jsonInputString = "{\"title\":\"Updated Subtask Title\", \"description\":\"Updated Subtask Description\", \"epicId\":1}";
+        HttpURLConnection connection = createConnection("/subtasks/" + subtask.getId(), "PUT");
+        connection.setDoOutput(true);
+        connection.getOutputStream().write(jsonInputString.getBytes());
 
+        assertEquals(200, connection.getResponseCode());
+
+        Subtask updatedSubtask = taskManager.getSubtaskById(subtask.getId());
+        assertEquals("Updated Subtask Title", updatedSubtask.getTitle());
+        assertEquals("Updated Subtask Description", updatedSubtask.getDescription());
+    }
 }

@@ -22,6 +22,7 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
+        System.out.println("Получен запрос: " + exchange.getRequestURI()); // Логируем запрос
         String path = exchange.getRequestURI().getPath();
         if (path.matches("/tasks/\\d+")) {
             handleById(exchange);
@@ -32,9 +33,6 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
                     break;
                 case "POST":
                     handlePost(exchange);
-                    break;
-                case "PUT":
-                    handlePut(exchange);
                     break;
                 case "DELETE":
                     handleDelete(exchange);
@@ -60,6 +58,21 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
             } catch (NotFoundException e) {
                 sendNotFound(exchange);
             }
+        } else if (exchange.getRequestMethod().equals("PUT")) {
+            Task task = gson.fromJson(new InputStreamReader(exchange.getRequestBody()), Task.class);
+            task.setId(id); // Устанавливаем ID задачи
+
+            if (taskManager.hasIntersection(task)) {
+                sendHasInteractions(exchange);
+                return;
+            }
+
+            try {
+                taskManager.updateTask(task);
+                sendText(exchange, gson.toJson(task));
+            } catch (NotFoundException e) {
+                sendNotFound(exchange);
+            }
         } else if (exchange.getRequestMethod().equals("DELETE")) {
             taskManager.deleteTask(id);
             sendText(exchange, "Task deleted");
@@ -76,24 +89,6 @@ public class TaskHandler extends BaseHttpHandler implements HttpHandler {
         }
         taskManager.createTask(task);
         sendText(exchange, gson.toJson(task));
-    }
-
-    private void handlePut(HttpExchange exchange) throws IOException {
-        int id = Integer.parseInt(exchange.getRequestURI().getPath().split("/")[2]);
-        Task task = gson.fromJson(new InputStreamReader(exchange.getRequestBody()), Task.class);
-        task.setId(id);
-
-        if (taskManager.hasIntersection(task)) {
-            sendHasInteractions(exchange);
-            return;
-        }
-
-        try {
-            taskManager.updateTask(task);
-            sendText(exchange, gson.toJson(task));
-        } catch (NotFoundException e) {
-            sendNotFound(exchange);
-        }
     }
 
     private void handleDelete(HttpExchange exchange) throws IOException {

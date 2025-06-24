@@ -22,6 +22,7 @@ public class HttpTaskServer {
 
     public void start() throws IOException {
         server = HttpServer.create(new InetSocketAddress(8080), 0);
+        System.out.println("Сервер создан и слушает на порту 8080");
         server.createContext("/tasks", new TaskHandler(taskManager));
         server.createContext("/subtasks", new SubtaskHandler(taskManager));
         server.createContext("/epics", new EpicHandler(taskManager));
@@ -30,6 +31,7 @@ public class HttpTaskServer {
 
         server.setExecutor(null);
         server.start();
+        System.out.println("Сервер запущен");
     }
 
     public void stop() {
