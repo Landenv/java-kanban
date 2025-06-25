@@ -25,13 +25,6 @@ public class SubtaskHandlerTest extends AbstractHandlerTest {
         taskManager.createEpic(new Epic("Test Epic", "Epic Description"));
     }
 
-    static Stream<Arguments> provideSubtaskData() {
-        return Stream.of(
-                Arguments.of(new Subtask("Test Subtask 1", "Subtask Description 1", 1)),
-                Arguments.of(new Subtask("Test Subtask 2", "Subtask Description 2", 1))
-        );
-    }
-
     @ParameterizedTest
     @MethodSource("provideSubtaskData")
     public void testCreateSubtask(Subtask subtask) throws IOException {

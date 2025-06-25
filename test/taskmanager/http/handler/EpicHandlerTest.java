@@ -17,13 +17,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class EpicHandlerTest extends AbstractHandlerTest {
 
-    static Stream<Arguments> provideEpicData() {
-        return Stream.of(
-                Arguments.of(new Epic("Test Epic 1", "Epic Description 1")),
-                Arguments.of(new Epic("Test Epic 2", "Epic Description 2"))
-        );
-    }
-
     @ParameterizedTest
     @MethodSource("provideEpicData")
     public void testCreateEpic(Epic epic) throws IOException {
