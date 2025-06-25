@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.provider.Arguments;
 import taskmanager.manager.InMemoryTaskManager;
 import taskmanager.http.HttpTaskServer;
+import taskmanager.manager.TaskManager;
 import taskmanager.utiltask.Epic;
 import taskmanager.utiltask.Subtask;
 import taskmanager.utiltask.Task;
@@ -18,7 +19,7 @@ import java.util.stream.Stream;
 public abstract class AbstractHandlerTest {
     protected static final String BASE_URL = "http://localhost:8080";
     protected HttpTaskServer httpTaskServer;
-    protected InMemoryTaskManager taskManager;
+    protected TaskManager taskManager;
 
     @BeforeEach
     public void setUp() throws IOException {
