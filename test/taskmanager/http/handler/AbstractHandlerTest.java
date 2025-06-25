@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.stream.Stream;
 
 public abstract class AbstractHandlerTest {
+    protected static final String BASE_URL = "http://localhost:8080";
     protected HttpTaskServer httpTaskServer;
     protected InMemoryTaskManager taskManager;
 
@@ -32,7 +33,7 @@ public abstract class AbstractHandlerTest {
     }
 
     protected HttpURLConnection createConnection(String endpoint, String method) throws IOException {
-        URI uri = URI.create("http://localhost:8080" + endpoint);
+        URI uri = URI.create(BASE_URL + endpoint);
         URL url = uri.toURL();
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod(method);
