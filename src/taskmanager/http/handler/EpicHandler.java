@@ -1,79 +1,48 @@
 package taskmanager.http.handler;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import taskmanager.exception.NotFoundException;
 import taskmanager.manager.TaskManager;
 import taskmanager.utiltask.Epic;
-import com.google.gson.Gson;
-import taskmanager.http.factory.GsonFactory;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
 
-public class EpicHandler extends BaseHttpHandler implements HttpHandler {
-    private final TaskManager taskManager;
-    private final Gson gson = GsonFactory.createGson();
-
+public class EpicHandler extends AbstractTaskHandler<Epic> {
     public EpicHandler(TaskManager taskManager) {
-        this.taskManager = taskManager;
+        super(taskManager);
     }
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        String path = exchange.getRequestURI().getPath();
-        if (path.matches("/epics/\\d+")) {
-            handleById(exchange);
-        } else {
-            switch (exchange.getRequestMethod()) {
-                case "GET":
-                    handleGet(exchange);
-                    break;
-                case "POST":
-                    handlePost(exchange);
-                    break;
-                case "DELETE":
-                    handleDelete(exchange);
-                    break;
-                default:
-                    sendNotFound(exchange);
-            }
-        }
+    protected String getPathPattern() {
+        return "/epics/\\d+";
     }
 
-    private void handleGet(HttpExchange exchange) throws IOException {
-        List<Epic> epics = taskManager.getAllEpics();
-        String jsonResponse = gson.toJson(epics);
-        sendText(exchange, jsonResponse);
+    @Override
+    protected Epic getById(int id) throws NotFoundException {
+        return taskManager.getEpicById(id);
     }
 
-    private void handleById(HttpExchange exchange) throws IOException {
-        int id = Integer.parseInt(exchange.getRequestURI().getPath().split("/")[2]);
-        if (exchange.getRequestMethod().equals("GET")) {
-            try {
-                Epic epic = taskManager.getEpicById(id);
-                sendText(exchange, gson.toJson(epic));
-            } catch (NotFoundException e) {
-                sendNotFound(exchange);
-            }
-        } else if (exchange.getRequestMethod().equals("DELETE")) {
-            taskManager.deleteEpic(id);
-            sendText(exchange, "Epic deleted");
-        } else {
-            sendNotFound(exchange);
-        }
+    @Override
+    protected void create(Epic item) {
+        taskManager.createEpic(item);
     }
 
-    private void handlePost(HttpExchange exchange) throws IOException {
-        Epic epic = gson.fromJson(new InputStreamReader(exchange.getRequestBody()), Epic.class);
-        taskManager.createEpic(epic);
-        sendText(exchange, gson.toJson(epic));
+    @Override
+    protected void update(Epic item) {
+        taskManager.updateEpic(item);
     }
 
-    private void handleDelete(HttpExchange exchange) throws IOException {
-        int id = Integer.parseInt(exchange.getRequestURI().getPath().split("/")[2]);
+    @Override
+    protected void delete(int id) {
         taskManager.deleteEpic(id);
-        sendText(exchange, "Epic deleted");
+    }
+
+    @Override
+    protected Class<Epic> getType() {
+        return Epic.class;
+    }
+
+    @Override
+    protected List<Epic> getAllItems() {
+        return taskManager.getAllEpics();
     }
 }

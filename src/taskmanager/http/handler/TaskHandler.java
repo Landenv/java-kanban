@@ -1,99 +1,48 @@
 package taskmanager.http.handler;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import taskmanager.exception.NotFoundException;
 import taskmanager.manager.TaskManager;
 import taskmanager.utiltask.Task;
-import com.google.gson.Gson;
-import taskmanager.http.factory.GsonFactory;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
 
-public class TaskHandler extends BaseHttpHandler implements HttpHandler {
-    private final TaskManager taskManager;
-    private final Gson gson = GsonFactory.createGson();
-
+public class TaskHandler extends AbstractTaskHandler<Task> {
     public TaskHandler(TaskManager taskManager) {
-        this.taskManager = taskManager;
+        super(taskManager);
     }
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        System.out.println("Получен запрос: " + exchange.getRequestURI()); // Логируем запрос
-        String path = exchange.getRequestURI().getPath();
-        if (path.matches("/tasks/\\d+")) {
-            handleById(exchange);
-        } else {
-            switch (exchange.getRequestMethod()) {
-                case "GET":
-                    handleGet(exchange);
-                    break;
-                case "POST":
-                    handlePost(exchange);
-                    break;
-                case "DELETE":
-                    handleDelete(exchange);
-                    break;
-                default:
-                    sendNotFound(exchange);
-            }
-        }
+    protected String getPathPattern() {
+        return "/tasks/\\d+";
     }
 
-    private void handleGet(HttpExchange exchange) throws IOException {
-        List<Task> tasks = taskManager.getAllTasks();
-        String jsonResponse = gson.toJson(tasks);
-        sendText(exchange, jsonResponse);
+    @Override
+    protected Task getById(int id) throws NotFoundException {
+        return taskManager.getTaskById(id);
     }
 
-    private void handleById(HttpExchange exchange) throws IOException {
-        int id = Integer.parseInt(exchange.getRequestURI().getPath().split("/")[2]);
-        if (exchange.getRequestMethod().equals("GET")) {
-            try {
-                Task task = taskManager.getTaskById(id);
-                sendText(exchange, gson.toJson(task));
-            } catch (NotFoundException e) {
-                sendNotFound(exchange);
-            }
-        } else if (exchange.getRequestMethod().equals("PUT")) {
-            Task task = gson.fromJson(new InputStreamReader(exchange.getRequestBody()), Task.class);
-            task.setId(id); // Устанавливаем ID задачи
-
-            if (taskManager.hasIntersection(task)) {
-                sendHasInteractions(exchange);
-                return;
-            }
-
-            try {
-                taskManager.updateTask(task);
-                sendText(exchange, gson.toJson(task));
-            } catch (NotFoundException e) {
-                sendNotFound(exchange);
-            }
-        } else if (exchange.getRequestMethod().equals("DELETE")) {
-            taskManager.deleteTask(id);
-            sendText(exchange, "Task deleted");
-        } else {
-            sendNotFound(exchange);
-        }
+    @Override
+    protected void create(Task item) {
+        taskManager.createTask(item);
     }
 
-    private void handlePost(HttpExchange exchange) throws IOException {
-        Task task = gson.fromJson(new InputStreamReader(exchange.getRequestBody()), Task.class);
-        if (taskManager.hasIntersection(task)) {
-            sendHasInteractions(exchange);
-            return;
-        }
-        taskManager.createTask(task);
-        sendText(exchange, gson.toJson(task));
+    @Override
+    protected void update(Task item) {
+        taskManager.updateTask(item);
     }
 
-    private void handleDelete(HttpExchange exchange) throws IOException {
-        int id = Integer.parseInt(exchange.getRequestURI().getPath().split("/")[2]);
+    @Override
+    protected void delete(int id) {
         taskManager.deleteTask(id);
-        sendText(exchange, "Task deleted");
+    }
+
+    @Override
+    protected Class<Task> getType() {
+        return Task.class;
+    }
+
+    @Override
+    protected List<Task> getAllItems() {
+        return taskManager.getAllTasks();
     }
 }

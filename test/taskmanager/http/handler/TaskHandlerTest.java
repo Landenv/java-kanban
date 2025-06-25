@@ -1,72 +1,59 @@
 package taskmanager.http.handler;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import taskmanager.manager.InMemoryTaskManager;
-import taskmanager.http.HttpTaskServer;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import taskmanager.utiltask.Task;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TaskHandlerTest {
-    private HttpTaskServer httpTaskServer;
-    private InMemoryTaskManager taskManager;
+public class TaskHandlerTest extends AbstractHandlerTest {
 
-    @BeforeEach
-    public void setUp() throws IOException {
-        taskManager = new InMemoryTaskManager();
-        httpTaskServer = new HttpTaskServer(taskManager);
-        httpTaskServer.start();
+    static Stream<Arguments> provideTaskData() {
+        return Stream.of(
+                Arguments.of(new Task("Test Task 1", "Test Description 1")),
+                Arguments.of(new Task("Test Task 2", "Test Description 2"))
+        );
     }
 
-    @AfterEach
-    public void tearDown() {
-        httpTaskServer.stop();
-    }
-
-    private HttpURLConnection createConnection(String endpoint, String method) throws IOException {
-        URI uri = URI.create("http://localhost:8080" + endpoint);
-        URL url = uri.toURL();
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod(method);
-        return connection;
-    }
-
-    @Test
-    public void testCreateTask() throws IOException {
-        String jsonInputString = "{\"title\":\"Test Task\", \"description\":\"Test Description\"}";
+    @ParameterizedTest
+    @MethodSource("provideTaskData")
+    public void testCreateTask(Task task) throws IOException {
         HttpURLConnection connection = createConnection("/tasks", "POST");
         connection.setDoOutput(true);
+        String jsonInputString = "{\"title\":\"" + task.getTitle() + "\", \"description\":\"" + task.getDescription() + "\"}";
         connection.getOutputStream().write(jsonInputString.getBytes());
 
         assertEquals(200, connection.getResponseCode());
-
         assertEquals(1, taskManager.getAllTasks().size());
-        assertEquals("Test Task", taskManager.getAllTasks().getFirst().getTitle());
+        assertEquals(task.getTitle(), taskManager.getAllTasks().getFirst().getTitle());
     }
 
-    @Test
-    public void testGetAllTasks() throws IOException {
-        taskManager.createTask(new Task("Test Task", "Test Description"));
+    @ParameterizedTest
+    @MethodSource("provideTaskData")
+    public void testGetAllTasks(Task task) throws IOException {
+        taskManager.createTask(task);
 
         HttpURLConnection connection = createConnection("/tasks", "GET");
         assertEquals(200, connection.getResponseCode());
 
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+            String response = reader.lines().collect(Collectors.joining());
+            assertTrue(response.contains(task.getTitle()), "Response should contain the task title.");
+        }
     }
 
-    @Test
-    public void testGetTaskById() throws IOException {
-        Task task = new Task("Test Task", "Test Description");
+    @ParameterizedTest
+    @MethodSource("provideTaskData")
+    public void testGetTaskById(Task task) throws IOException {
         taskManager.createTask(task);
 
         HttpURLConnection connection = createConnection("/tasks/" + task.getId(), "GET");
@@ -74,13 +61,13 @@ public class TaskHandlerTest {
 
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
             String response = reader.lines().collect(Collectors.joining());
-            assertTrue(response.contains("Test Task"), "Response should contain the task title.");
+            assertTrue(response.contains(task.getTitle()), "Response should contain the task title.");
         }
     }
 
-    @Test
-    public void testDeleteTask() throws IOException {
-        Task task = new Task("Test Task", "Test Description");
+    @ParameterizedTest
+    @MethodSource("provideTaskData")
+    public void testDeleteTask(Task task) throws IOException {
         taskManager.createTask(task);
 
         HttpURLConnection connection = createConnection("/tasks/" + task.getId(), "DELETE");
@@ -89,9 +76,9 @@ public class TaskHandlerTest {
         assertEquals(0, taskManager.getAllTasks().size());
     }
 
-    @Test
-    public void testUpdateTask() throws IOException {
-        Task task = new Task("Test Task", "Test Description");
+    @ParameterizedTest
+    @MethodSource("provideTaskData")
+    public void testUpdateTask(Task task) throws IOException {
         taskManager.createTask(task);
 
         String jsonInputString = "{\"title\":\"Updated Task Title\", \"description\":\"Updated Description\"}";
@@ -105,4 +92,5 @@ public class TaskHandlerTest {
         assertEquals("Updated Task Title", updatedTask.getTitle());
         assertEquals("Updated Description", updatedTask.getDescription());
     }
+
 }
