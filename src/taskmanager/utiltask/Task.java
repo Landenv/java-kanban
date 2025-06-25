@@ -12,6 +12,7 @@ public class Task {
     protected Duration duration;
     protected LocalDateTime startTime;
 
+
     public Task(String title, String description) {
         this.title = title;
         this.description = description;
@@ -69,6 +70,10 @@ public class Task {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Status getStatus() {
         return status;
     }
@@ -117,9 +122,6 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Задача ID: " + id + ", Наименование задачи: " + title +
-                ", Описание задачи: " + description + ", Текущий статус: " + getStatus() + ", Длительность: " +
-                (duration != null ? duration.toMinutes() : "нет") + ", Начало: " +
-                (startTime != null ? startTime : "нет");
+        return "Задача ID: " + id + ", Наименование задачи: " + title + ", Описание задачи: " + description + ", Текущий статус: " + getStatus() + ", Длительность: " + (duration != null ? duration.toMinutes() : "нет") + ", Начало: " + (startTime != null ? startTime : "нет");
     }
 }
